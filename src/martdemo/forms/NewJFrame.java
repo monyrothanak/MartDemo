@@ -5,10 +5,13 @@
  */
 package martdemo.forms;
 //import com.mysql.jdbc.Driver;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.*;
+
+import connection.SingletonConnection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
 
 /**
  *
@@ -19,8 +22,15 @@ public class NewJFrame extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    
+    private final SingletonConnection connection = SingletonConnection.getInstance();
     public NewJFrame() {
         initComponents();
+        try{
+        connection.connectDatabase();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -152,28 +162,23 @@ public class NewJFrame extends javax.swing.JFrame {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
         
-        try {
-        String url = "jdbc:postgresql://localhost/test";
-        Properties props = new Properties();
-        props.setProperty("user","fred");
-        props.setProperty("password","secret");
-        props.setProperty("ssl","true");
-        
-        
-        String host ="localhost";
-        String db = "";
-        String username="";
-        String port = "";
-        String password = "";
-        
-        Class.forName("com.mysql.jdbl.Driver").newInstance();
-            Connection conn  = java.sql.DriverManager.getConnection("jdbc:mysql://" + host + "/" +db,username, password);
-        
-
-        } catch (Exception ex) {
-            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        try{
+        String SQL = "SELECT * FROM \"Category\"";
+        PreparedStatement pre = connection.openConnection().prepareStatement(SQL);
+        ResultSet rs = pre.executeQuery();
+        while(rs.next()){
+            int CategoryId = rs.getInt(1);
+            String CategoryName = rs.getString(2);
+            String CategoryDescription=rs.getString(3);
+            
+            System.out.println("ID : "+CategoryId);
+            System.out.println("Name : "+CategoryName);
+            System.out.println("Desc : "+CategoryDescription);
+            System.out.println("-----");
         }
-
+        }catch(SQLException ex){
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_formWindowOpened
 
     /**
